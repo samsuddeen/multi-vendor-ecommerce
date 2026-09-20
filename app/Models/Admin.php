@@ -50,7 +50,7 @@ public function recordFailedLogin()
         'failed_login_attempts' => $newCount,
         // 'locked_until' =>$newCount >=5 ? now()->addMinutes(30) : $this->locked_until,
         // 5 >=5
-        'locked_until' => $newCount >= 5 ? Carbon::now()->addMinutes(30) : $this->locked_until,
+        'locked_until' => $newCount >= 5 ? Carbon::now()->addMinutes(2) : $this->locked_until,
     ]);
 }
 

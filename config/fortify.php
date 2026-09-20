@@ -15,7 +15,8 @@ return [
     |
     */
 
-    'guard' => 'admin',
+    // 'guard' => 'admin',
+    'guard' => 'web',
 
     /*
     |--------------------------------------------------------------------------
@@ -73,7 +74,8 @@ return [
     |
     */
 
-    'home' => '/admin/dashboard',
+    // 'home' => '/admin/dashboard',
+    'home' => '/',
 
     /*
     |--------------------------------------------------------------------------
@@ -144,8 +146,8 @@ return [
     */
 
     'features' => [
-        Features::registration(),
-        Features::resetPasswords(),
+        // Features::registration(),
+        // Features::resetPasswords(),
         // Features::emailVerification(),
         Features::updateProfileInformation(),
         Features::updatePasswords(),

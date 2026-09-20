@@ -20,11 +20,12 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        Admin::insert([
-            'name' => 'admin',
-            'email' => 'admin@gmail.com',
-            'password' => bcrypt('password'),
-            'email_verified_at' => now()
-        ]);
+        $this->call(VendorSeeder::class);
+        // Admin::insert([
+        //     'name' => 'admin2',
+        //     'email' => 'admin@admin.com',
+        //     'password' => bcrypt('password'),
+        //     'email_verified_at' => now()
+        // ]);
     }
 }

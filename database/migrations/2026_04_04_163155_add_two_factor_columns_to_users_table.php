@@ -11,7 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (!Schema::hasTable('users')) {
+
         Schema::table('users', function (Blueprint $table) {
+            
             $table->text('two_factor_secret')
                 ->after('password')
                 ->nullable();
@@ -24,6 +27,8 @@ return new class extends Migration
                 ->after('two_factor_recovery_codes')
                 ->nullable();
         });
+        }
+
     }
 
     /**

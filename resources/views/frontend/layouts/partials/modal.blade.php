@@ -81,27 +81,32 @@
           </button>
         </div>
         <div class="register-form">
-          <form class="flex flex-col gap-y-6">
+
+
+          <form class="flex flex-col gap-y-6" action="{{ route('customer.register.post') }}" method="POST">
+            @csrf
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
               <div class="relative w-full">
                 <input
                   type="text"
                   id="first-name"
+                  name="name"
                   class="peer form-control input-group medium rounded-[80px] px-3.5 placeholder-transparent focus:placeholder-transparent focus:outline-none"
-                  placeholder="First Name *"
+                  placeholder="Full Name *"
                 />
 
                 <label
                   for="first-name"
                   class="absolute left-[14px] top-1/2 -translate-y-1/2 text-xs leading-[18px] transition-all peer-placeholder-shown:text-light-disabled-text peer-focus:text-light-disabled-text peer-placeholder-shown:text-[16px] peer-placeholder-shown:top-1/2 peer-focus:text-[12px] peer-focus:top-0 peer-[:not(:placeholder-shown)]:text-[12px] peer-[:not(:placeholder-shown)]:top-0 bg-white peer-focus:px-1 peer-[:not(:placeholder-shown)]:px-1"
                 >
-                  First Name *
+                  Full Name *
                 </label>
               </div>
               <div class="relative w-full">
                 <input
                   type="text"
                   id="last-name"
+                  name="phone"
                   class="peer form-control input-group medium rounded-[80px] px-3.5 placeholder-transparent focus:placeholder-transparent focus:outline-none"
                   placeholder="Last Name *"
                 />
@@ -110,7 +115,7 @@
                   for="last-name"
                   class="absolute left-[14px] top-1/2 -translate-y-1/2 text-xs leading-[18px] transition-all peer-placeholder-shown:text-light-disabled-text peer-focus:text-light-disabled-text peer-placeholder-shown:text-[16px] peer-placeholder-shown:top-1/2 peer-focus:text-[12px] peer-focus:top-0 peer-[:not(:placeholder-shown)]:text-[12px] peer-[:not(:placeholder-shown)]:top-0 bg-white peer-focus:px-1 peer-[:not(:placeholder-shown)]:px-1"
                 >
-                  Last Name *
+                  Phone *
                 </label>
               </div>
             </div>
@@ -118,6 +123,7 @@
               <input
                 type="email"
                 id="register-email"
+                name="email"
                 class="peer form-control input-group medium rounded-[80px] px-3.5 placeholder-transparent focus:placeholder-transparent focus:outline-none"
                 placeholder="Email *"
               />
@@ -133,6 +139,7 @@
               <input
                 type="password"
                 id="register-password"
+                name="password"
                 class="peer form-control input-group medium rounded-[80px] px-3.5 placeholder-transparent focus:placeholder-transparent focus:outline-none"
                 placeholder="Password *"
               />
@@ -148,6 +155,7 @@
               <input
                 type="password"
                 id="confirm-password"
+                name="password_confirmation"
                 class="peer form-control input-group medium rounded-[80px] px-3.5 placeholder-transparent focus:placeholder-transparent focus:outline-none"
                 placeholder="Confirm Password *"
               />
@@ -165,6 +173,8 @@
               </button>
             </div>
           </form>
+
+
         </div>
         <div class="account-having-section">
           <p class="leading-[26px] font-semibold">
@@ -2114,3 +2124,26 @@
       </div>
     </div>
     <!-- Size Variation Modal End -->
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        @if(session('openOtpModal'))
+
+            // Close all modals
+            document.querySelectorAll('[data-state]').forEach(function (sidebar) {
+                sidebar.setAttribute('data-state', 'close');
+            });
+
+            // Open OTP modal
+            const otpModal = document.querySelector('.otp-verification-page-sidebar');
+
+            if (otpModal) {
+                otpModal.setAttribute('data-state', 'open');
+            }
+
+        @endif
+
+    });
+</script>

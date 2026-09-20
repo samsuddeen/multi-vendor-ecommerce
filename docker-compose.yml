@@ -1,0 +1,154 @@
+services:
+
+  # ============================================================
+  # LARAVEL APPLICATION
+  # ============================================================
+  ecommerce-app:
+    # Dockerfile isi project directory se build hoga
+    build: .
+
+    # Is project ke Laravel container ka unique naam
+    # Existing projects ke containers se conflict nahi karna xahiye
+    container_name: ecommerce-app
+
+    # Current project folder ko container ke Laravel folder se map karega
+    # Isse host par kiye changes container ke andar immediately available honge
+    volumes:
+      - '.:/var/www/html'
+
+    # Host port : Container port
+    #
+    # Host:
+    #   http://localhost:8084
+    #
+    # Container ke Apache ka port:
+    #   80
+    ports:
+      - "8084:80"
+
+    # Laravel ko MySQL container ke saath connect karne ke liye
+    # same Docker network use karna hai
+    depends_on:
+      - ecommerce-mysql
+
+    networks:
+      - ecommerce-network
+
+
+  # ============================================================
+  # MYSQL DATABASE
+  # ============================================================
+  ecommerce-mysql:
+    # MySQL 8 image
+    image: mysql/mysql-server:8.0
+
+    # Unique container name
+    container_name: ecommerce-mysql
+
+    # MySQL configuration
+    environment:
+
+      # MySQL root password
+      MYSQL_ROOT_PASSWORD: ecommerce
+
+      # Automatically create this database
+      MYSQL_DATABASE: multi-vendor-ecommerce
+
+      # Normal application user
+      MYSQL_USER: ecommerceuser
+
+      # Password for application user
+      MYSQL_PASSWORD: ecommerce
+
+    # Host port 3309 ko container ke MySQL port 3306 se connect karega
+    #
+    # Host:
+    #   3309
+    #
+    # Container:
+    #   3306
+    #
+    # Isliye tumhare existing MySQL projects ke 3306/3308
+    # ko disturb nahi karega.
+    ports:
+      - "3309:3306"
+
+    # Database data persistent rahega.
+    #
+    # Container delete/recreate hone ke baad bhi database data
+    # volume ke andar rahega.
+    volumes:
+      - ecommerce-mysql-data:/var/lib/mysql
+
+    # Same network mein Laravel app ke saath communicate karega
+    networks:
+      - ecommerce-network
+
+
+  # ============================================================
+  # PHPMYADMIN
+  # ============================================================
+  ecommerce-phpmyadmin:
+    # Official phpMyAdmin image
+    image: phpmyadmin/phpmyadmin
+
+    # Unique container name
+    container_name: ecommerce-phpmyadmin
+
+    # Host port 9017
+    #
+    # Browser:
+    #   http://localhost:9017
+    #
+    # Container:
+    #   port 80
+    ports:
+      - "9017:80"
+
+    environment:
+
+      # phpMyAdmin kis MySQL server se connect karega
+      #
+      # IMPORTANT:
+      # localhost nahi likhna hai.
+      # Docker ke andar MySQL ka service name use hota hai.
+      PMA_HOST: ecommerce-mysql
+
+      # Large file upload support
+      UPLOAD_LIMIT: 1000M
+
+      # PHP memory limit
+      MEMORY_LIMIT: 1000M
+
+      # Maximum execution time
+      MAX_EXECUTION_TIME: 2000
+
+    # MySQL pehle start hona chahiye
+    depends_on:
+      - ecommerce-mysql
+
+    # Same Docker network
+    networks:
+      - ecommerce-network
+
+
+# ================================================================
+# PERSISTENT MYSQL VOLUME
+# ================================================================
+volumes:
+
+  # Sirf is Ecommerce project ka database data
+  #
+  # Existing projects ke database volumes ko touch nahi karega.
+  ecommerce-mysql-data:
+    name: ecommerce-mysql-data
+
+
+# ================================================================
+# DEDICATED DOCKER NETWORK
+# ================================================================
+networks:
+
+  # Sirf is Ecommerce project ke containers ke communication ke liye
+  ecommerce-network:
+    name: ecommerce-network

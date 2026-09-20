@@ -13,6 +13,23 @@ return new class extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->timestamp('phone_verified_at')->nullable();
+            $table->string('password');
+            $table->string('phone')->nullable();
+            $table->text('avatar')->nullable();
+            $table->enum('gender', ['male','female', 'other'])->nullable();
+            $table->date('date_of_birth')->nullable();
+            $table->boolean('status')->default(true);
+            $table->string('google_id')->nullable();
+            $table->string('facebook_id')->nullable();
+            $table->string('otp')->nullable();
+            $table->string('address')->nullable();
+            $table->timestamp('otp_expired_at')->nullable();
+
+            $table->rememberToken();
             $table->timestamps();
         });
     }

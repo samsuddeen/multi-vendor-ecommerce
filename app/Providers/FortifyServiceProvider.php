@@ -6,9 +6,12 @@ use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
+use App\Http\Responses\LoginResponse;
 use App\Models\Admin;
+use App\Models\Vendor;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -24,19 +27,20 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+      $this->app->singleton(\Laravel\Fortify\Contracts\LoginResponse::class, LoginResponse::class);
     }
 
     /**
      * Bootstrap any application services.
      */
+    
     public function boot(): void
     {
         // one
         Fortify::authenticateUsing(function (Request $request) {
-            if (!str_starts_with($request->path(), 'admin')) {
-                return null;
-            }
+
+            if (str_starts_with($request->path(), 'admin')) {
+                // return null;
 
             $admin = Admin::where('email', $request->email)->first();
             if (!$admin) {
@@ -46,8 +50,9 @@ class FortifyServiceProvider extends ServiceProvider
             }
 
             if ($admin->isLocked()) {
+                $minutes = $admin->lockRemainingMinutes();
                 throw ValidationException::withMessages([
-                    'account' => 'account is locked',
+                    'account' => "account is locked for {$minutes} min.",
                 ]);
             }
             if (!$admin->status) {
@@ -75,14 +80,79 @@ class FortifyServiceProvider extends ServiceProvider
             }
 
             $admin->recordSuccessfulLogin($request->ip());
+            Auth::guard('admin')->login($admin, $request->boolean('remember'));
+            $request->session()->regenerate();
 
-            return $admin;
+            return null;
+            }
+
+
+
+            if (str_starts_with($request->path(), 'vendor')) {
+                // return null;
+
+            $vendor = Vendor::where('email', $request->email)->first();
+            // dd($vendor);
+            if (!$vendor) {
+                throw ValidationException::withMessages([
+                    'email' => 'Invalid credentials',
+                ]);
+            }
+
+            if ($vendor->isLocked()) {
+                $minutes = $vendor->lockRemainingMinutes();
+                throw ValidationException::withMessages([
+                    'account' => "account is locked for {$minutes} min.",
+                ]);
+            }
+            if (!$vendor->isActive() ) {
+                // dd('failed')
+                throw ValidationException::withMessages([
+                    'status' => 'status inactive',
+                ]);
+            }
+
+            // dd('passed');
+
+            // if($vendor && Hash::check($request->password, $vendor->password))
+            //     {
+            //         return $vendor;
+            //     }
+            //     else {
+            //     $vendor->recordFailedLogin();
+            //     return null;
+            //     }
+
+            //     $vendor->recordSuccessfulLogin($request->ip());
+
+            if (!Hash::check($request->password, $vendor->password)) {
+
+                $vendor->recordFailedLogin();
+                throw ValidationException::withMessages([
+                    'password' => 'Invalid password',
+                ]);
+            }
+
+            $vendor->recordSuccessfulLogin($request->ip());
+          Auth::guard('vendor')->login($vendor, $request->boolean('remember'));
+            $request->session()->regenerate();
+            return null;
+            }
+
+
+            return null;
+
+
         });
 
         // 2nd
         Fortify::loginView(
             fn(Request $r) => str_starts_with($r->path(), 'admin')
                 ? view('admin.auth.login') : view('auth.login')
+        );
+        Fortify::loginView(
+            fn(Request $r) => str_starts_with($r->path(), 'vendor')
+                ? view('vendor.auth.login') : view('auth.login')
         );
 
         //2fa
